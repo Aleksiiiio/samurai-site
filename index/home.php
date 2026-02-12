@@ -6,9 +6,6 @@ if(!$db){
 }
 ?>
 
-
-
-
 <!doctype html>
 <html lang="pl">
   <head>
@@ -101,6 +98,7 @@ if(!$db){
         <img src="imgs/neverfadeaway.jpg" alt="neverfadeaway" id="songimg"/>
         <div id="songdescription">
           <p id="title">Never Fade Away</p>
+          <p id="authors">Johnny Silverhand</p>
           <p id="description">
             Napisany i skomponowany przez Johnny'ego Silverhanda utwór „Never
             Fade Away” był częścią jego solowego albumu z 2013 roku, „A Cool
@@ -114,26 +112,36 @@ if(!$db){
           let images = document.querySelectorAll(".card img")
           let songimg = document.getElementById("songimg")
           let title = document.getElementById("title");
+          let authors = document.getElementById("authors")
           let description = document.getElementById("description")
 
           images.forEach(img =>{
               img.addEventListener('click', (e)=>{
                   <?php
-                    $query2 = 'SELECT id, nazwa, opis, zdjecie FROM piosenka';
+                    $query2 = "SELECT 
+                              p.id AS songid, 
+                              p.nazwa AS songname,
+                              p.opis AS description,
+                              p.zdjecie AS image,
+                              GROUP_CONCAT(a.nazwa SEPARATOR ', ') AS artistnames
+                              FROM artysta_piosenka AS ap
+                              JOIN artysta AS a ON a.id = ap.artysta_id 
+                              JOIN piosenka AS p ON p.id = ap.piosenka_id
+                              GROUP BY p.id, p.nazwa, p.opis, p.zdjecie;";
                     $result2 = mysqli_query($db,$query2);
 
                     while ($row = mysqli_fetch_assoc($result2)){
-                      echo 'if(e.target.id == "'.$row['id'].'") {';
-                      echo 'songimg.src = "imgs/'.$row['zdjecie'].'";';
-                      echo 'songimg.alt = "'.$row['nazwa'].'";';
-                      echo 'title.textContent = "'.$row['nazwa'].'";';
-                      echo 'description.textContent = "'.$row['opis'].'";';
+                      echo 'if(e.target.id == "'.$row['songid'].'") {';
+                      echo 'songimg.src = "imgs/'.$row['image'].'";';
+                      echo 'songimg.alt = "'.$row['songname'].'";';
+                      echo 'title.textContent = "'.$row['songname'].'";';
+                      echo 'authors.textContent = "'.$row['artistnames'].'";';
+                      echo 'description.textContent = "'.$row['description'].'";';
                       echo "}";
                     }
                   ?>
             });
           }) 
-
           </script>
       </section>
       <hr />
@@ -193,10 +201,23 @@ if(!$db){
     <hr>
     <footer id="newsletter">
         <p>Zapisz się do newslettera</p>
-        <form action="">
+        <form method="GET">
           <input type="email" name="email" id="email">
           <button type="submit" id="signup">Zapisz się</button>
         </form>
+        <script>
+          let signup = document.getElementById('signup');
+          signup.addEventListener("click", (e)=>{
+          <?php
+          $email = $_GET['email'];
+          $query3 = "INSERT INTO newsletter(email) VALUES ('$email')";
+          $result = mysqli_query($db, $query3);
+          if($result){
+            echo 'alert("Dziękujemy za zapisanie się do newslettera!");';
+          }
+          ?>
+          })
+        </script>
     </footer>
   </body>
 </html>
