@@ -182,7 +182,7 @@ if(!$db){
               echo '<p>'.$row['biografia'].'</p>';
               echo '</div>';
             } else {
-              echo '<div class="member" id="'.$row['nazwa'].'">';
+              echo '<div class="member" id="'.$row['nazwa_skrot'].'">';
               echo '<p>'.$row['biografia'].'</p>';
               echo '<img src="imgs/'.$row['zdjecie'].'" alt="'.$row['nazwa'].'"/>';
               echo '</div>';
